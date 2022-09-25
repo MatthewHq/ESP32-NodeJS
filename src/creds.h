@@ -7,5 +7,8 @@ class creds
         // static const char* testChar;          // Access specifier
         char* SSID;
         char* PASS;
+        char* HOST;
+        int PORT;
+        char* URL;
         creds();
 };
