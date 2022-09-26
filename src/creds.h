@@ -10,5 +10,7 @@ class creds
         char* HOST;
         int PORT;
         char* URL;
+        char* ENDPOINT_CA_CERT;
+        const char* CA;
         creds();
 };

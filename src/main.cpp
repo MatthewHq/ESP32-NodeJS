@@ -13,6 +13,7 @@ bool socketDone = false;
 
 void onWSEvent(WStype_t type, uint8_t *payload, size_t length)
 {
+  Serial.println(type);
   switch (type)
   {
   case WStype_CONNECTED:
@@ -49,13 +50,17 @@ void loop()
 
   if (WiFi.status() == WL_CONNECTED && !isConnected)
   {
-    Serial.println("Connected!");
+    Serial.println("Connected to WiFi!");
     digitalWrite(LED_BUILTIN, HIGH);
     isConnected = true;
 
     if (!socketDone)
     {
-      wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
+
+      //void WebSocketsClient::beginSslWithCA(const char * host, uint16_t port, const char * url, const char * CA_cert, const char * protocol) {
+      //begin(host, port, url, protocol);
+      // wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
+      wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->ENDPOINT_CA_CERT, "wss");
       Serial.println("BEGINSSL...!");
     }
   }
@@ -76,7 +81,7 @@ void loop()
   }
   else
   {
-    wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
+    wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->CA, "wss");
     Serial.println("BEGINSSL...!");
   }
   Serial.println(hallRead());
