@@ -40,7 +40,7 @@ void setup()
  
   Serial.begin(921600);
   Serial.print("HEY I'M AWAKE|||");
-  Serial.print(credItem->test_ca_cert);
+  Serial.print(credItem->test_ca_cert); // !!!!! CERT HERE
   Serial.println("|||END CA CERT PRINT");
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -57,7 +57,8 @@ void setup()
   Serial.println(WiFi.localIP());
 
   Serial.println("============ ATTEMPTING SSL CONNECTION ===========");
-  wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->test_ca_cert, "wss");
+  // wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->test_ca_cert, "wss");// !!!!! CERT HERE
+  wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
   wsClient.onEvent(onWSEvent);
 }
 
@@ -106,7 +107,7 @@ void loop()
   Serial.println(hallRead());
 
   // Serial.println(credItem->SSID);
-  delay(2000);
+  delay(4000);
 
   // delay(1000);
 
