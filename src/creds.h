@@ -12,5 +12,7 @@ class creds
         char* URL;
         char* ENDPOINT_CA_CERT;
         const char* CA;
+        const char* PRIVKEY;
+        const char* test_ca_cert;
         creds();
 };

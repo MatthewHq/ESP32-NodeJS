@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include <WiFiMulti.h>
+
 #include <WebSocketsClient.h>
 #include <creds.h>
 // #include <string>
@@ -21,7 +23,7 @@ void onWSEvent(WStype_t type, uint8_t *payload, size_t length)
     socketDone = true;
     break;
   case WStype_DISCONNECTED:
-    Serial.println("WS Connected");
+    Serial.println("WS DISCONNECTed");
     socketDone = false;
     break;
   case WStype_ERROR:
@@ -31,59 +33,76 @@ void onWSEvent(WStype_t type, uint8_t *payload, size_t length)
   }
 }
 
+WiFiMulti wifiMulti;
+
 void setup()
 {
-  pinMode(LED_BUILTIN, OUTPUT);
+ 
   Serial.begin(921600);
-  Serial.println("HEY I'M AWAKE");
+  Serial.print("HEY I'M AWAKE|||");
+  Serial.print(credItem->test_ca_cert);
+  Serial.println("|||END CA CERT PRINT");
+  pinMode(LED_BUILTIN, OUTPUT);
 
-  WiFi.begin(credItem->SSID, credItem->PASS);
+  wifiMulti.addAP(credItem->SSID, credItem->PASS);
 
-  // Serial.println(WiFi.localIP());
-  // Serial.println(hallRead());
+  while (wifiMulti.run() != WL_CONNECTED)
+  {
+    delay(100);
+  }
+  
+  Serial.println("Connected to ");
+  Serial.print(WiFi.SSID()); // Tell us what network we're connected to
+  Serial.println("IP address:\t");
+  Serial.println(WiFi.localIP());
+
+  Serial.println("============ ATTEMPTING SSL CONNECTION ===========");
+  wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->test_ca_cert, "wss");
+  wsClient.onEvent(onWSEvent);
 }
 
-bool isConnected = false;
+// bool isConnected = false;
 
 void loop()
 {
 
-  if (WiFi.status() == WL_CONNECTED && !isConnected)
-  {
-    Serial.println("Connected to WiFi!");
-    digitalWrite(LED_BUILTIN, HIGH);
-    isConnected = true;
+  digitalWrite(LED_BUILTIN, WiFi.status() == WL_CONNECTED);
+  // if (WiFi.status() == WL_CONNECTED && !isConnected)
+  // {
+  // Serial.println("Connected to WiFi!");
+  // digitalWrite(LED_BUILTIN, HIGH);
+  // isConnected = true;
 
-    if (!socketDone)
-    {
+  // if (!socketDone)
+  // {
 
-      //void WebSocketsClient::beginSslWithCA(const char * host, uint16_t port, const char * url, const char * CA_cert, const char * protocol) {
-      //begin(host, port, url, protocol);
-      // wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
-      wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->ENDPOINT_CA_CERT, "wss");
-      Serial.println("BEGINSSL...!");
-    }
-  }
+  // void WebSocketsClient::beginSslWithCA(const char * host, uint16_t port, const char * url, const char * CA_cert, const char * protocol) {
+  // begin(host, port, url, protocol);
+  //  wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
 
-  if (WiFi.status() != WL_CONNECTED)
-  {
-    isConnected = false;
-    Serial.println("Connecting...!");
-    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+  // Serial.println("BEGINSSL...!");
+  // }
+  // }
 
-    delay(1000);
-  }
+  // if (WiFi.status() != WL_CONNECTED)
+  // {
+  //   isConnected = false;
+  //   Serial.println("Connecting...!");
+  //   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 
-  if (socketDone)
-  {
-    wsClient.loop();
-    wsClient.onEvent(onWSEvent);
-  }
-  else
-  {
-    wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->CA, "wss");
-    Serial.println("BEGINSSL...!");
-  }
+  //   delay(1000);
+  // }
+
+  // if (socketDone)
+  // {
+  wsClient.loop();
+  // wsClient.onEvent(onWSEvent);
+  // }
+  // else
+  // {
+  // wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->CA, "wss");
+  // Serial.println("BEGINSSL...!");
+  // }
   Serial.println(hallRead());
 
   // Serial.println(credItem->SSID);

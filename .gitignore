@@ -12,5 +12,6 @@ NodeJS Websocket/node_modules/*
 NodeJS Websocket/.rnd
 NodeJS Websocket/certificate.crt
 NodeJS Websocket/privateKey.key
+NodeJS Websocket/OldCerts/*
 *.key
 *.crt
