@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#include <WiFi.h>
+//#include <WiFi.h>
 #include <WiFiMulti.h>
 
+#include <string> 
 #include <WebSocketsClient.h>
 #include <creds.h>
 // #include <string>
@@ -11,55 +12,62 @@
 
 WebSocketsClient wsClient;
 creds *credItem = new creds();
-bool socketDone = false;
+WiFiMulti wifiMulti;
 
 void onWSEvent(WStype_t type, uint8_t *payload, size_t length)
 {
+
   Serial.println(type);
+
   switch (type)
   {
   case WStype_CONNECTED:
     Serial.println("WS Connected");
-    socketDone = true;
+    wsClient.sendTXT("HELLLLLO");
     break;
   case WStype_DISCONNECTED:
     Serial.println("WS DISCONNECTed");
-    socketDone = false;
     break;
   case WStype_ERROR:
     Serial.println("WS ERROR");
     Serial.printf("payload error", payload);
     break;
+  case WStype_TEXT:
+    Serial.println("TEXT RECEIVED");
+    Serial.printf("TXT", payload);
+    break;
   }
 }
 
-WiFiMulti wifiMulti;
+
 
 void setup()
 {
- 
   Serial.begin(921600);
-  Serial.print("HEY I'M AWAKE|||");
-  Serial.print(credItem->test_ca_cert); // !!!!! CERT HERE
-  Serial.println("|||END CA CERT PRINT");
+  Serial.println("HEY I'M AWAKE");
   pinMode(LED_BUILTIN, OUTPUT);
 
   wifiMulti.addAP(credItem->SSID, credItem->PASS);
 
+  Serial.print("Connecting");
   while (wifiMulti.run() != WL_CONNECTED)
   {
-    delay(100);
+    Serial.print(".");
+    delay(200);
   }
-  
-  Serial.println("Connected to ");
+
+  Serial.println("\nConnected to ");
   Serial.print(WiFi.SSID()); // Tell us what network we're connected to
   Serial.println("IP address:\t");
   Serial.println(WiFi.localIP());
 
-  Serial.println("============ ATTEMPTING SSL CONNECTION ===========");
+  Serial.println("============ ATTEMPTING WEBSOCKET CONNECTION ===========");
   // wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->test_ca_cert, "wss");// !!!!! CERT HERE
-  wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
+  // wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
+  wsClient.begin(credItem->HOST, credItem->PORT);
+  // Serial.println("Say Hello? After wsClientBegin");
   wsClient.onEvent(onWSEvent);
+  wsClient.setReconnectInterval(5000);
 }
 
 // bool isConnected = false;
@@ -68,57 +76,15 @@ void loop()
 {
 
   digitalWrite(LED_BUILTIN, WiFi.status() == WL_CONNECTED);
-  // if (WiFi.status() == WL_CONNECTED && !isConnected)
-  // {
-  // Serial.println("Connected to WiFi!");
-  // digitalWrite(LED_BUILTIN, HIGH);
-  // isConnected = true;
-
-  // if (!socketDone)
-  // {
-
-  // void WebSocketsClient::beginSslWithCA(const char * host, uint16_t port, const char * url, const char * CA_cert, const char * protocol) {
-  // begin(host, port, url, protocol);
-  //  wsClient.beginSSL(credItem->HOST, credItem->PORT, credItem->URL, "", "wss");
-
-  // Serial.println("BEGINSSL...!");
-  // }
-  // }
-
-  // if (WiFi.status() != WL_CONNECTED)
-  // {
-  //   isConnected = false;
-  //   Serial.println("Connecting...!");
-  //   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-
-  //   delay(1000);
-  // }
-
-  // if (socketDone)
-  // {
   wsClient.loop();
-  // wsClient.onEvent(onWSEvent);
-  // }
-  // else
-  // {
-  // wsClient.beginSslWithCA(credItem->HOST, credItem->PORT, credItem->URL, credItem->CA, "wss");
-  // Serial.println("BEGINSSL...!");
-  // }
-  Serial.println(hallRead());
+  // Serial.println("Loop Now");
+  delay(200);
 
-  // Serial.println(credItem->SSID);
-  delay(4000);
+  char buffer [sizeof(int)*8+1];
+  int hall=hallRead();
 
-  // delay(1000);
 
-  // Serial.println("Hey from Loops");
-  // delay(1000);
-  // digitalWrite(LED_BUILTIN, LOW);
-
-  // digitalWrite(LED_BUILTIN, WiFi.status()==WL_CONNECTED);
-  // Serial.println("Loop!");
-
-  // Serial.println(WiFi.localIP());
-
-  // put your main code here, to run repeatedly:
+  wsClient.sendTXT(+itoa(hall,buffer,10));
+  // Serial.println("Post Loop");
+  // wsClient.sendTXT("HELLLLLO");
 }

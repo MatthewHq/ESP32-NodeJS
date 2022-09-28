@@ -5,7 +5,9 @@ const WebSocketServer = require('ws');
 const wss = new WebSocketServer.Server({ port: 4334 })
  
 // Creating connection using websocket
+
 wss.on("connection", ws => {
+    ws.send("Hello I am Server to Client=========");
     console.log("new client connected");
     // sending message
     ws.on("message", data => {
