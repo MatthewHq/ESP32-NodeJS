@@ -23,7 +23,7 @@ void onWSEvent(WStype_t type, uint8_t *payload, size_t length)
   {
   case WStype_CONNECTED:
     Serial.println("WS Connected");
-    wsClient.sendTXT("HELLLLLO");
+    //wsClient.sendTXT("HELLLLLO");
     break;
   case WStype_DISCONNECTED:
     Serial.println("WS DISCONNECTed");

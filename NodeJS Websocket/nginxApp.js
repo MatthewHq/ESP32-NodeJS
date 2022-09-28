@@ -23,3 +23,14 @@ wss.on("connection", ws => {
     }
 });
 console.log("The WebSocket server is running on port 4334");
+
+//================================
+const http = require('http');
+
+const requestListener = function (req, res) {
+  res.writeHead(200);
+  res.end('Hello, World!');
+}
+
+const server = http.createServer(requestListener);
+server.listen(4334);

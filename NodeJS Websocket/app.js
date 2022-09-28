@@ -1,19 +1,3 @@
-// const https = require('https');
-// const fs = require('fs');
-
-// const options = {
-//   key: fs.readFileSync('privateKey.key'),
-//   cert: fs.readFileSync('certificate.crt')
-// };
-
-// https.createServer(options, function (req, res) {
-//   res.writeHead(200);
-//   res.end("hello world\n");
-// }).listen(1234);
-
-
-
-
 const WebSocket = require("ws").Server;
 const { createServer } = require("https");
 const fs = require("fs");
