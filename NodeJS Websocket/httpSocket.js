@@ -17,7 +17,7 @@ let avg10000=0
 
 function addToArr(targetArr,msg,size) {
     if (targetArr.length>=size){
-        targetArr.shift()
+        targetArr.shift()   
     }
     targetArr.push(parseInt(msg))
   }
