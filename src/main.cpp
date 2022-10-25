@@ -13,6 +13,8 @@
 WebSocketsClient wsClient;
 creds *credItem = new creds();
 WiFiMulti wifiMulti;
+int soundSensor=34;
+
 
 void onWSEvent(WStype_t type, uint8_t *payload, size_t length)
 {
@@ -46,6 +48,7 @@ void setup()
   Serial.begin(921600);
   Serial.println("HEY I'M AWAKE");
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(soundSensor,INPUT);
 
   wifiMulti.addAP(credItem->SSID, credItem->PASS);
 
@@ -74,17 +77,21 @@ void setup()
 
 void loop()
 {
+  
 
   digitalWrite(LED_BUILTIN, WiFi.status() == WL_CONNECTED);
   wsClient.loop();
   // Serial.println("Loop Now");
-  delay(200);
+  delay(100);
 
   char buffer [sizeof(int)*8+1];
-  int hall=hallRead();
+  //int hall=hallRead();
+  int SensorData=analogRead(soundSensor); 
+  Serial.print("SENSOR ");
+  Serial.println(SensorData);
 
 
-  wsClient.sendTXT(+itoa(hall,buffer,10));
-  // Serial.println("Post Loop");
+  wsClient.sendTXT(+itoa(SensorData,buffer,10));
+  
   // wsClient.sendTXT("HELLLLLO");
 }
